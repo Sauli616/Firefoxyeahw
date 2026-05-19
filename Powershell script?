@@ -1,25 +1,17 @@
 # =========================================================
 # 🔧 FIREFOX PROFILE PATH - HOW TO FIND IT
 #
-#
 # 📍 METHOD 1:
-# 1. Open Firefox
-# 2. Type: about:profiles
-# 3. Find "Root Directory"
-# 4. Click "Open Folder"
-# 5. Copy full path
-#
-#
-# 📍 METHOD 2:
 # 1. Open Firefox
 # 2. Type: about:support
 # 3. Find: "Profile Folder"
 # 4. Click "Open Folder"
-# 5. Copy the full path from File Explorer
 #
-#
-# 📌 EXAMPLE PATH:
-# C:\Users\YOURNAME\AppData\Roaming\Mozilla\Firefox\Profiles\xxxx.default-release
+# 📍 METHOD 2:
+# 1. Open Firefox
+# 2. Type: about:profiles
+# 3. Find "Root Directory"
+# 4. Copy path
 # =========================================================
 
 # ================= USER INPUT =================
@@ -29,8 +21,11 @@ $profilePath=
 $dns="1.1.1.1","1.0.0.1"
 
 $policyDir="C:\Program Files\Mozilla Firefox\distribution"
-if(!(Test-Path (Split-Path $policyDir -Parent))){$policyDir="C:\Program Files (x86)\Mozilla Firefox\distribution"}
+if(!(Test-Path (Split-Path $policyDir -Parent))){
+$policyDir="C:\Program Files (x86)\Mozilla Firefox\distribution"
+}
 
+# NETWORK
 Get-NetAdapter|?{$_.Status -eq "Up"-and $_.Name-match"Wi-Fi|Ethernet|WiFi"}|%{
 Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ServerAddresses $dns
 try{Set-NetAdapterPowerManagement -Name $_.Name -ErrorAction SilentlyContinue}catch{}
@@ -40,19 +35,31 @@ ipconfig /flushdns|Out-Null
 netsh interface tcp set global autotuninglevel=normal|Out-Null
 netsh interface tcp set global rss=enabled|Out-Null
 
-if(!(Test-Path $profilePath)){exit 1}
+# SAFETY CHECK
+if([string]::IsNullOrWhiteSpace($profilePath)){
+Write-Host "❌ PROFILE PATH IS EMPTY" -ForegroundColor Red
+exit 1
+}
+
+if(!(Test-Path $profilePath)){
+Write-Host "❌ PROFILE NOT FOUND" -ForegroundColor Red
+Write-Host "👉 Check about:support → Profile Folder" -ForegroundColor Yellow
+exit 1
+}
 
 $backup=Get-Date -Format "yyyy-MM-dd_HH-mm"
 $userjsPath=Join-Path $profilePath "user.js"
 
 New-Item -ItemType Directory -Force -Path $policyDir|Out-Null
 
+# BACKUP
 if(Test-Path "$policyDir\policies.json"){
 Copy-Item "$policyDir\policies.json" "$policyDir\policies.json.bak_$backup"-Force}
 
 if(Test-Path $userjsPath){
 Copy-Item $userjsPath "$userjsPath.bak_$backup"-Force}
 
+# POLICIES
 Set-Content "$policyDir\policies.json" @'
 {
   "policies": {
@@ -74,6 +81,7 @@ Set-Content "$policyDir\policies.json" @'
 }
 '@ -Encoding UTF8
 
+# USER.JS
 Set-Content $userjsPath @'
 user_pref("gfx.webrender.all", true);
 user_pref("layers.acceleration.force-enabled", true);
@@ -147,7 +155,11 @@ user_pref("_user.js.parrot", "HYBRID SPEED CONFIG 2026");
 user_pref("gfx.webrender.all", true);
 '@
 
-if(!(Test-Path $userjsPath)){exit 1}
+# FINAL CHECK
+if(!(Test-Path $userjsPath)){
+Write-Host "❌ FAILED: user.js not created" -ForegroundColor Red
+exit 1
+}
 
-Write-Host "`n🚀 CONFIG APPLIED" -ForegroundColor Green
+Write-Host "`n🚀 CONFIG APPLIED SUCCESSFULLY" -ForegroundColor Green
 Write-Host "🔁 Restart Firefox" -ForegroundColor Yellow
