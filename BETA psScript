@@ -1,3 +1,4 @@
+```powershell
 # =========================================================
 # 🔧 FIREFOX PROFILE PATH - HOW TO FIND IT
 #
@@ -76,7 +77,6 @@ Set-Content "$policyDir\policies.json" @'
   "policies": {
 
     "DisableTelemetry": true,
-    "DisableFirefoxAccounts": false,
     "DisableFirefoxStudies": true,
     "DisablePocket": true,
     "DisableCrashReporter": true,
@@ -101,77 +101,114 @@ Set-Content "$policyDir\policies.json" @'
 
 Set-Content $userjsPath @'
 /****************************************************
- * HYBRID FIREFOX CONFIG
- * PERFORMANCE + PRIVACY + LOWER MEMORY USAGE
+ * FIREFOX HYBRID CONFIG 2026
+ * FAST + SMOOTH + LOW RAM + PRIVACY
  ****************************************************/
 
 /* ====================================================
-   BASE PERFORMANCE
+   RENDERING / GPU
 ==================================================== */
 
 user_pref("gfx.webrender.all", true);
-user_pref("layers.acceleration.force-enabled", true);
 
-user_pref("toolkit.cosmeticAnimations.enabled", false);
-user_pref("browser.tabs.animate", false);
-user_pref("browser.fullscreen.animate", false);
+/* ====================================================
+   SMOOTH SCROLLING
+==================================================== */
 
 user_pref("general.smoothScroll", true);
+
 user_pref("general.smoothScroll.msdPhysics.enabled", true);
+
+user_pref("general.smoothScroll.currentVelocityWeighting", "0.15");
+
+user_pref("general.smoothScroll.stopDecelerationWeighting", "0.6");
+
+user_pref("mousewheel.min_line_scroll_amount", 18);
+
+user_pref("mousewheel.default.delta_multiplier_y", 140);
+
+user_pref("mousewheel.system_scroll_override.enabled", true);
+
+user_pref("mousewheel.system_scroll_override_on_root_content.enabled", true);
 
 user_pref("apz.overscroll.enabled", true);
 
-user_pref("mousewheel.default.delta_multiplier_y", 250);
+user_pref("layout.css.scroll-behavior.spring-constant", "250");
+
+user_pref("layout.frame_rate", 165);
+
+/* ====================================================
+   UI RESPONSIVENESS
+==================================================== */
+
+user_pref("toolkit.cosmeticAnimations.enabled", false);
+
+user_pref("browser.tabs.animate", false);
+
+user_pref("browser.fullscreen.animate", false);
+
+user_pref("ui.prefersReducedMotion", 1);
+
+user_pref("content.notify.interval", 100000);
+
+user_pref("nglayout.initialpaint.delay", 0);
+
+user_pref("browser.sessionstore.interval", 60000);
+
+user_pref("browser.tabs.delayHidingAudioPlayingIconMS", 0);
 
 /* ====================================================
    MEMORY / PROCESS OPTIMIZATION
 ==================================================== */
 
-/* Lower process count */
-user_pref("dom.ipc.processCount", 4);
+user_pref("dom.ipc.processCount", 6);
 
-/* Tab unloading */
 user_pref("browser.tabs.unloadOnLowMemory", true);
 
-/* Tab unload timing */
-user_pref("browser.tabs.min_inactive_duration_before_unload", 600000);
+user_pref("browser.tabs.min_inactive_duration_before_unload", 300000);
 
-/* Session cache */
+user_pref("browser.low_commit_space_threshold_mb", 1024);
+
 user_pref("browser.sessionstore.max_tabs_undo", 5);
+
 user_pref("browser.sessionstore.max_windows_undo", 2);
 
 user_pref("browser.sessionstore.max_serialize_back", 5);
+
 user_pref("browser.sessionstore.max_serialize_forward", 2);
 
-/* Memory cache */
-user_pref("image.mem.surfacecache.max_size_kb", 131072);
+user_pref("browser.sessionhistory.max_total_viewers", 4);
 
-user_pref("media.memory_cache_max_size", 65536);
+user_pref("image.mem.surfacecache.max_size_kb", 65536);
 
-user_pref("gfx.canvas.accelerated.cache-size", 512);
+user_pref("media.memory_cache_max_size", 32768);
 
-/* JS memory */
-user_pref("javascript.options.mem.high_water_mark", 512);
+user_pref("gfx.canvas.accelerated.cache-size", 256);
 
-/* Accessibility off */
 user_pref("accessibility.force_disabled", 1);
 
-/* Cache */
-user_pref("browser.cache.disk.enable", true);
-user_pref("browser.cache.memory.enable", true);
+/* ====================================================
+   CACHE
+==================================================== */
 
-/* DNS cache */
-user_pref("network.dnsCacheEntries", 1000);
-user_pref("network.dnsCacheExpiration", 3600);
+user_pref("browser.cache.disk.enable", true);
+
+user_pref("browser.cache.memory.enable", true);
 
 /* ====================================================
    NETWORK
 ==================================================== */
 
+user_pref("network.dnsCacheEntries", 1000);
+
+user_pref("network.dnsCacheExpiration", 3600);
+
 user_pref("network.dns.disablePrefetch", false);
+
 user_pref("network.prefetch-next", false);
 
 user_pref("network.predictor.enabled", false);
+
 user_pref("network.predictor.enable-prefetch", false);
 
 user_pref("network.http.speculative-parallel-limit", 0);
@@ -179,6 +216,8 @@ user_pref("network.http.speculative-parallel-limit", 0);
 /* ====================================================
    PRIVACY
 ==================================================== */
+
+user_pref("browser.contentblocking.category", "strict");
 
 user_pref("privacy.trackingprotection.enabled", true);
 
@@ -195,6 +234,7 @@ user_pref("privacy.globalprivacycontrol.enabled", true);
 ==================================================== */
 
 user_pref("toolkit.telemetry.enabled", false);
+
 user_pref("toolkit.telemetry.unified", false);
 
 user_pref("toolkit.telemetry.archive.enabled", false);
@@ -214,7 +254,7 @@ user_pref("app.shield.optoutstudies.enabled", false);
 user_pref("app.normandy.enabled", false);
 
 /* ====================================================
-   MOZILLA UI / ANNOYANCES
+   MOZILLA UI CLEANUP
 ==================================================== */
 
 user_pref("extensions.getAddons.showPane", false);
@@ -222,10 +262,6 @@ user_pref("extensions.getAddons.showPane", false);
 user_pref("extensions.htmlaboutaddons.recommendations.enabled", false);
 
 user_pref("browser.discovery.enabled", false);
-
-user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
-
-user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
 
 user_pref("browser.shell.checkDefaultBrowser", false);
 
@@ -241,8 +277,6 @@ user_pref("browser.newtabpage.activity-stream.showSponsored", false);
 
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
 
-user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
-
 user_pref("browser.urlbar.quicksuggest.enabled", false);
 
 user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
@@ -250,10 +284,6 @@ user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
 user_pref("browser.urlbar.trending.featureGate", false);
 
 user_pref("extensions.pocket.enabled", false);
-
-user_pref("browser.tabs.groups.smart.enabled", false);
-
-user_pref("browser.ml.linkPreview.enabled", false);
 
 /* ====================================================
    AI FEATURES OFF
@@ -265,27 +295,18 @@ user_pref("browser.ml.enable", false);
 
 user_pref("browser.ml.chat.enabled", false);
 
-user_pref("browser.ml.chat.menu", false);
-
 user_pref("browser.ai.chat.enabled", false);
 
 user_pref("browser.ai.enable", false);
 
 user_pref("browser.ai.summarizer.enabled", false);
 
-user_pref("browser.tabs.ai.enabled", false);
-
-/* ====================================================
-   SAFE BROWSING TWEAKS
-==================================================== */
-
-user_pref("browser.safebrowsing.downloads.remote.enabled", false);
-
 /* ====================================================
    FINAL TAG
 ==================================================== */
 
-user_pref("_user.js.hybrid", "PERFORMANCE + PRIVACY + MEMORY");
+user_pref("_user.js.profile", "FAST_SMOOTH_LOW_RAM_2026");
+
 '@ -Encoding UTF8
 
 # =========================================================
@@ -300,3 +321,4 @@ if (!(Test-Path $userjsPath)) {
 Write-Host "`n🚀 FIREFOX CONFIG APPLIED SUCCESSFULLY" -ForegroundColor Green
 Write-Host "🔁 Restart Firefox" -ForegroundColor Yellow
 Write-Host "📦 Backup timestamp: $backup" -ForegroundColor Cyan
+```
