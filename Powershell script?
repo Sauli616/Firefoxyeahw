@@ -1,13 +1,24 @@
 # =========================================================
-# 
+# 🔧 FIREFOX PROFILE PATH - HOW TO FIND IT
 #
-# 📍 Find your profile path:
+#
+# 📍 METHOD 1:
 # 1. Open Firefox
-# 2. Type in address bar: about:profiles
-# 3. Look for "Root Directory"
-# 4. Copy full path (click "Open Folder" → copy path)
+# 2. Type: about:profiles
+# 3. Find "Root Directory"
+# 4. Click "Open Folder"
+# 5. Copy full path
 #
-# Example:
+#
+# 📍 METHOD 2:
+# 1. Open Firefox
+# 2. Type: about:support
+# 3. Find: "Profile Folder"
+# 4. Click "Open Folder"
+# 5. Copy the full path from File Explorer
+#
+#
+# 📌 EXAMPLE PATH:
 # C:\Users\YOURNAME\AppData\Roaming\Mozilla\Firefox\Profiles\xxxx.default-release
 # =========================================================
 
