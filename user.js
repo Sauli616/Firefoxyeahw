@@ -70,5 +70,4 @@ user_pref("datareporting.healthreport.uploadEnabled", false);
 user_pref("datareporting.policy.dataSubmissionEnabled", false);
 user_pref("app.shield.optoutstudies.enabled", false);
 
-user_pref("_user.js.parrot", "HYBRID SPEED CONFIG 2026");
 user_pref("gfx.webrender.all", true);
