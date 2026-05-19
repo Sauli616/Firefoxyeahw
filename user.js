@@ -37,11 +37,9 @@ user_pref("privacy.trackingprotection.cryptomining.enabled", true);
 user_pref("privacy.trackingprotection.socialtracking.enabled", true);
 
 user_pref("privacy.globalprivacycontrol.enabled", true);
-
 user_pref("privacy.partition.network_state", false);
 
 user_pref("network.predictor.enabled", false);
-user_pref("network.prefetch-next", true);
 user_pref("network.dns.disablePrefetchFromHTTPS", false);
 
 user_pref("browser.ml.enable", false);
