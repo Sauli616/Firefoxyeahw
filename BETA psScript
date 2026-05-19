@@ -1,0 +1,302 @@
+# =========================================================
+# 🔧 FIREFOX PROFILE PATH - HOW TO FIND IT
+#
+# METHOD 1:
+# 1. Open Firefox
+# 2. Go to: about:support
+# 3. Find "Profile Folder"
+# 4. Click "Open Folder"
+#
+# METHOD 2:
+# 1. Open Firefox
+# 2. Go to: about:profiles
+# 3. Copy "Root Directory"
+# =========================================================
+
+# ================= USER INPUT =================
+$profilePath = "C:\Users\sauli\AppData\Roaming\Mozilla\Firefox\Profiles\5o4cs8f1.default-release-1779183460843"
+# ==============================================
+
+# =========================================================
+# FIREFOX POLICY DIRECTORY
+# =========================================================
+
+$policyDir = "C:\Program Files\Mozilla Firefox\distribution"
+
+if (!(Test-Path (Split-Path $policyDir -Parent))) {
+    $policyDir = "C:\Program Files (x86)\Mozilla Firefox\distribution"
+}
+
+# =========================================================
+# SAFETY CHECKS
+# =========================================================
+
+if ([string]::IsNullOrWhiteSpace($profilePath)) {
+    Write-Host "`n❌ PROFILE PATH IS EMPTY" -ForegroundColor Red
+    Write-Host "👉 Open about:support and copy your profile path" -ForegroundColor Yellow
+    exit 1
+}
+
+if (!(Test-Path $profilePath)) {
+    Write-Host "`n❌ PROFILE PATH NOT FOUND" -ForegroundColor Red
+    Write-Host "👉 Check about:support → Profile Folder" -ForegroundColor Yellow
+    exit 1
+}
+
+# =========================================================
+# BACKUPS
+# =========================================================
+
+$backup = Get-Date -Format "yyyy-MM-dd_HH-mm"
+
+$userjsPath = Join-Path $profilePath "user.js"
+
+New-Item -ItemType Directory -Force -Path $policyDir | Out-Null
+
+if (Test-Path "$policyDir\policies.json") {
+    Copy-Item `
+        "$policyDir\policies.json" `
+        "$policyDir\policies.json.bak_$backup" `
+        -Force
+}
+
+if (Test-Path $userjsPath) {
+    Copy-Item `
+        $userjsPath `
+        "$userjsPath.bak_$backup" `
+        -Force
+}
+
+# =========================================================
+# POLICIES.JSON
+# =========================================================
+
+Set-Content "$policyDir\policies.json" @'
+{
+  "policies": {
+
+    "DisableTelemetry": true,
+    "DisableFirefoxAccounts": false,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableCrashReporter": true,
+    "DisableExtensionRecommendations": true,
+    "DisableFirefoxView": true,
+
+    "HttpsOnlyMode": "force_enabled",
+
+    "DNSOverHTTPS": {
+      "Enabled": true,
+      "ProviderURL": "https://cloudflare-dns.com/dns-query",
+      "Fallback": true,
+      "Locked": false
+    }
+  }
+}
+'@ -Encoding UTF8
+
+# =========================================================
+# USER.JS
+# =========================================================
+
+Set-Content $userjsPath @'
+/****************************************************
+ * HYBRID FIREFOX CONFIG
+ * PERFORMANCE + PRIVACY + LOWER MEMORY USAGE
+ ****************************************************/
+
+/* ====================================================
+   BASE PERFORMANCE
+==================================================== */
+
+user_pref("gfx.webrender.all", true);
+user_pref("layers.acceleration.force-enabled", true);
+
+user_pref("toolkit.cosmeticAnimations.enabled", false);
+user_pref("browser.tabs.animate", false);
+user_pref("browser.fullscreen.animate", false);
+
+user_pref("general.smoothScroll", true);
+user_pref("general.smoothScroll.msdPhysics.enabled", true);
+
+user_pref("apz.overscroll.enabled", true);
+
+user_pref("mousewheel.default.delta_multiplier_y", 250);
+
+/* ====================================================
+   MEMORY / PROCESS OPTIMIZATION
+==================================================== */
+
+/* Lower process count */
+user_pref("dom.ipc.processCount", 4);
+
+/* Tab unloading */
+user_pref("browser.tabs.unloadOnLowMemory", true);
+
+/* Tab unload timing */
+user_pref("browser.tabs.min_inactive_duration_before_unload", 600000);
+
+/* Session cache */
+user_pref("browser.sessionstore.max_tabs_undo", 5);
+user_pref("browser.sessionstore.max_windows_undo", 2);
+
+user_pref("browser.sessionstore.max_serialize_back", 5);
+user_pref("browser.sessionstore.max_serialize_forward", 2);
+
+/* Memory cache */
+user_pref("image.mem.surfacecache.max_size_kb", 131072);
+
+user_pref("media.memory_cache_max_size", 65536);
+
+user_pref("gfx.canvas.accelerated.cache-size", 512);
+
+/* JS memory */
+user_pref("javascript.options.mem.high_water_mark", 512);
+
+/* Accessibility off */
+user_pref("accessibility.force_disabled", 1);
+
+/* Cache */
+user_pref("browser.cache.disk.enable", true);
+user_pref("browser.cache.memory.enable", true);
+
+/* DNS cache */
+user_pref("network.dnsCacheEntries", 1000);
+user_pref("network.dnsCacheExpiration", 3600);
+
+/* ====================================================
+   NETWORK
+==================================================== */
+
+user_pref("network.dns.disablePrefetch", false);
+user_pref("network.prefetch-next", false);
+
+user_pref("network.predictor.enabled", false);
+user_pref("network.predictor.enable-prefetch", false);
+
+user_pref("network.http.speculative-parallel-limit", 0);
+
+/* ====================================================
+   PRIVACY
+==================================================== */
+
+user_pref("privacy.trackingprotection.enabled", true);
+
+user_pref("privacy.trackingprotection.fingerprinting.enabled", true);
+
+user_pref("privacy.trackingprotection.cryptomining.enabled", true);
+
+user_pref("privacy.trackingprotection.socialtracking.enabled", true);
+
+user_pref("privacy.globalprivacycontrol.enabled", true);
+
+/* ====================================================
+   TELEMETRY OFF
+==================================================== */
+
+user_pref("toolkit.telemetry.enabled", false);
+user_pref("toolkit.telemetry.unified", false);
+
+user_pref("toolkit.telemetry.archive.enabled", false);
+
+user_pref("toolkit.telemetry.newProfilePing.enabled", false);
+
+user_pref("toolkit.telemetry.shutdownPingSender.enabled", false);
+
+user_pref("toolkit.telemetry.updatePing.enabled", false);
+
+user_pref("datareporting.healthreport.uploadEnabled", false);
+
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+
+user_pref("app.shield.optoutstudies.enabled", false);
+
+user_pref("app.normandy.enabled", false);
+
+/* ====================================================
+   MOZILLA UI / ANNOYANCES
+==================================================== */
+
+user_pref("extensions.getAddons.showPane", false);
+
+user_pref("extensions.htmlaboutaddons.recommendations.enabled", false);
+
+user_pref("browser.discovery.enabled", false);
+
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
+
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
+
+user_pref("browser.shell.checkDefaultBrowser", false);
+
+user_pref("browser.preferences.moreFromMozilla", false);
+
+user_pref("browser.aboutwelcome.enabled", false);
+
+user_pref("browser.aboutConfig.showWarning", false);
+
+user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
+
+user_pref("browser.newtabpage.activity-stream.showSponsored", false);
+
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+
+user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
+
+user_pref("browser.urlbar.quicksuggest.enabled", false);
+
+user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
+
+user_pref("browser.urlbar.trending.featureGate", false);
+
+user_pref("extensions.pocket.enabled", false);
+
+user_pref("browser.tabs.groups.smart.enabled", false);
+
+user_pref("browser.ml.linkPreview.enabled", false);
+
+/* ====================================================
+   AI FEATURES OFF
+==================================================== */
+
+user_pref("browser.ai.control.default", "blocked");
+
+user_pref("browser.ml.enable", false);
+
+user_pref("browser.ml.chat.enabled", false);
+
+user_pref("browser.ml.chat.menu", false);
+
+user_pref("browser.ai.chat.enabled", false);
+
+user_pref("browser.ai.enable", false);
+
+user_pref("browser.ai.summarizer.enabled", false);
+
+user_pref("browser.tabs.ai.enabled", false);
+
+/* ====================================================
+   SAFE BROWSING TWEAKS
+==================================================== */
+
+user_pref("browser.safebrowsing.downloads.remote.enabled", false);
+
+/* ====================================================
+   FINAL TAG
+==================================================== */
+
+user_pref("_user.js.hybrid", "PERFORMANCE + PRIVACY + MEMORY");
+'@ -Encoding UTF8
+
+# =========================================================
+# FINAL CHECK
+# =========================================================
+
+if (!(Test-Path $userjsPath)) {
+    Write-Host "`n❌ FAILED: user.js was not created" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "`n🚀 FIREFOX CONFIG APPLIED SUCCESSFULLY" -ForegroundColor Green
+Write-Host "🔁 Restart Firefox" -ForegroundColor Yellow
+Write-Host "📦 Backup timestamp: $backup" -ForegroundColor Cyan
